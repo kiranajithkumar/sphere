@@ -1,31 +1,30 @@
-pipeline {
-   agent any
-   stages {
-      stage('Checkout') {
-         steps {
-            checkout scmm
-            def customImage = docker.build("my-image:${env.BUILD_ID}")
-            customImage.inside {
-            sh 'make test'
-           
-         }
-      }
-   
-    stage('Build') {
-         steps {
-            customImage.push('latest')
-           
-         }
-      }  
-    stage('Deploy') {
-         steps {
-            echo 'Deploy'
-         }
-      }
-    stage('Test') {
-         steps {
-            echo 'Test'
-         }
-      }    
-   }
+node {
+    def app
+
+    stage('Clone repository') {
+      
+
+        checkout scm
+    }
+
+    stage('Build image') {
+  
+       app = docker.build("kirankumarajith97/test")
+    }
+
+    stage('Test image') {
+  
+
+        app.inside {
+            sh 'echo "Tests passed"'
+        }
+    }
+
+    stage('Push image') {
+        
+        docker.withRegistry('https://registry.hub.docker.com', 'git') {
+            app.push("${env.BUILD_NUMBER}")
+            app.push("latest")
+        }
+    }
 }
