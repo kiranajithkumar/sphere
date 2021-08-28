@@ -3,20 +3,18 @@ pipeline {
    stages {
       stage('Checkout') {
          steps {
-            echo 'Code Checkout'
+            checkout scmm
+            def customImage = docker.build("my-image:${env.BUILD_ID}")
+            customImage.inside {
+            sh 'make test'
+           
          }
       }
-    stage('Compile') {
-         steps {
-            echo 'Compile'
-         }
-      }  
+   
     stage('Build') {
          steps {
-            echo 'Build'
-            FROM nginx:latest
-            COPY . /usr/share/nginx/html
-            EXPOSE 80
+            customImage.push('latest')
+           
          }
       }  
     stage('Deploy') {
