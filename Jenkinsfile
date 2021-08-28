@@ -14,6 +14,9 @@ pipeline {
     stage('Build') {
          steps {
             echo 'Build'
+            FROM nginx:latest
+            COPY . /usr/share/nginx/html
+            EXPOSE 80
          }
       }  
     stage('Deploy') {
